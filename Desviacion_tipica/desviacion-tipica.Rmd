@@ -1,0 +1,113 @@
+---
+title: "Desviacion Tipica"
+output: html_document
+date: "2026-09-24"
+autor: Wilson A. Becerra H.
+---
+
+```{r}
+#WABH
+#rm(list=ls()) # eliminamos todos los objetos creados
+```
+
+# 📊 Concepto de Desviación Típica y Dispersión
+
+En estadística, la **desviación típica** (o desviación estándar, representada por la letra griega $\sigma$ o $s$) es una medida de dispersión que nos indica cuánto se alejan los datos individuales respecto a la media aritmética ($\bar{x}$) del conjunto.
+
+------------------------------------------------------------------------
+
+## 📚 Definición Teórica
+
+1.  **Media (**$\bar{x}$): Representa el centro de gravedad de la distribución de datos.
+2.  **Desviación Típica (**$\sigma$): Mide el promedio de las distancias de cada dato respecto a la media.
+    - **Baja dispersión (**$\sigma$ pequeña): Los datos están concentrados muy cerca de la media (conjunto homogéneo).
+    - **Alta dispersión (**$\sigma$ grande): Los datos están más dispersos o alejados de la media (conjunto heterogéneo).
+
+### Formulación Matemática
+
+Para una muestra de $n$ datos, la desviación típica se calcula como:
+
+$$s = \sqrt{\frac{1}{n-1} \sum_{i=1}^{n} (x_i - \bar{x})^2}$$
+
+------------------------------------------------------------------------
+
+## Ejemplo Práctico
+
+Imaginemos tres grupos de estudio con la misma edad media ($\bar{x} = 17$ años), pero con distribuciones muy distintas:
+
+| Grupo | Edades | Media ($\bar{x}$) | Desviación Típica ($\sigma$) |
+|:---|:---|:--:|:--:|
+| **Grupo 1** | $15, 16, 17, 17, 18, 19$ | $17$ | $1.41$ |
+| **Grupo 2** | $14, 15, 15, 18, 19, 21$ | $17$ | $2.76$ |
+| **Grupo 3** | $13, 14, 15, 17, 20, 23$ | $17$ | $3.85$ |
+
+- **Conclusión:** Aunque la edad media es idéntica en los tres grupos, el **Grupo 3** tiene mucha más variabilidad de edades que el **Grupo 1**.
+
+------------------------------------------------------------------------
+
+```{r}
+#Edades de 3 personas
+edad1 <-c(15,16,17,17,18,19); edad1
+edad2 <-c(14,15,15,18,19,21); edad2
+edad3 <-c(13,14,15,17,20,23); edad3
+
+print(rbind(edad1,edad2,edad3))
+```
+
+```{r}
+p1<-mean(edad1); p1
+p2<-mean(edad2); p2
+p3<-mean(edad3); p3
+promedios<-c("persona1 "=p1," persona2 "=p2, " persona3"=p3);promedios
+```
+
+```{r}
+des1<-sd(edad1);des1
+des2<-sd(edad2);des2
+des3<-sd(edad3);des3
+des_tip<-c("persona1 "=des1," persona2 "=des2, " persona3"=des3);des_tip
+```
+
+```{r}
+# 1. Datos
+edad1 <- c(15, 16, 17, 17, 18, 19)
+edad2 <- c(14, 15, 15, 18, 19, 21)
+edad3 <- c(13, 14, 15, 17, 20, 23)
+
+# 2. Márgenes
+par(bg = "#F8F9FA", mar = c(5, 5, 4, 2))
+
+# 3. Dibujar gráfico base
+stripchart(
+  list("Grupo 1\n(σ = 1.41)" = edad1, 
+       "Grupo 2\n(σ = 2.76)" = edad2, 
+       "Grupo 3\n(σ = 3.85)" = edad3),
+  method = "jitter",
+  jitter = 0.1,
+  pch = 19,
+  col = c("#2B5C8F", "#D95F02", "#7570B3"),
+  cex = 1.8,
+  vertical = TRUE,
+  ylab = "Edad (años)",
+  main = "Comparación de Dispersión (Desviación Típica)",
+  ylim = c(11, 25)
+)
+
+# 4. Capas adicionales en orden correcto
+grid(nx = NA, ny = NULL, col = "gray80", lty = "dotted")
+abline(h = 17, col = "#E41A1C", lty = 2, lwd = 2)
+
+# Leyenda dentro del gráfico (arriba a la derecha)
+legend("topright", 
+       legend = "Media = 17", 
+       col = "#E41A1C", 
+       lty = 2, 
+       lwd = 2, 
+       bty = "n", 
+       text.font = 2, 
+       text.col = "#E41A1C")
+```
+
+#Gráfica: normal por persona:
+
+![](images/clipboard-2407544424.png)
