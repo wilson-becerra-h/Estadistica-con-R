@@ -1,0 +1,317 @@
+---
+title: "Puntuación Típica"
+author: "Wilson A. Becerra H."
+date: "2026-09-24"
+output: 
+  pdf_document:
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+
+# 📈 Concepto de Puntuación Típica (Z-Score) y su Representación Gráfica
+
+## 🎯 Introducción
+
+Cuando trabajamos con datos, a menudo necesitamos responder una pregunta muy concreta: **¿este valor es alto, bajo o normal dentro de su grupo?** La media y la desviación típica nos dan información sobre el conjunto, pero no nos dicen directamente *dónde* se sitúa un dato concreto dentro de esa distribución.
+
+Para eso existe la **puntuación típica** (también llamada *puntuación estándar*, *puntuación Z* o *z-score*), representada por la letra $z$. Su función es **traducir cualquier dato a una escala común**, indicando cuántas desviaciones típicas se aleja ese dato de la media.
+
+Esto es especialmente útil cuando queremos **comparar valores que pertenecen a escalas o unidades distintas** (por ejemplo, comparar una nota de Matemáticas sobre 10 con una nota de Inglés sobre 100), algo que sería imposible comparando directamente los datos brutos.
+
+------------------------------------------------------------------------
+
+## 📚 Definición Teórica
+
+1.  **Puntuación bruta (**$x_i$**):** El valor original del dato, tal y como se mide (edad, nota, altura, salario...).
+2.  **Puntuación típica (**$z_i$**):** El valor transformado que indica la posición relativa de $x_i$ respecto a la media, medida en unidades de desviación típica.
+
+### Interpretación del signo y magnitud de $z$
+
+| Valor de $z$ | Interpretación |
+|:---|:---|
+| $z = 0$ | El dato coincide exactamente con la media |
+| $z > 0$ | El dato está **por encima** de la media |
+| $z < 0$ | El dato está **por debajo** de la media |
+| $-1 \le z \le 1$ | Dato **típico**, dentro de lo esperado (≈68% de los datos en una normal) |
+| $|z| > 2$ | Dato **poco frecuente**, se aleja bastante de la media (≈95% de los datos quedan dentro de $\pm 2$) |
+| $|z| > 3$ | Dato **atípico o extremo (outlier)**, muy raro en una distribución normal (≈99.7% dentro de $\pm 3$) |
+
+> Esta relación entre $z$ y el porcentaje de datos que caen dentro de cada rango se conoce como la **regla empírica** o **regla 68-95-99.7**, válida para distribuciones aproximadamente normales.
+
+### Formulación Matemática
+
+Para un dato $x_i$ perteneciente a una muestra con media $\bar{x}$ y desviación típica muestral $s$:
+
+$$z_i = \frac{x_i - \bar{x}}{s}$$
+
+Si trabajamos con la **población completa** (no una muestra), se usa la notación con $\mu$ y $\sigma$:
+
+$$z_i = \frac{x_i - \mu}{\sigma}$$
+
+### Propiedades importantes de las puntuaciones típicas
+
+Al transformar un conjunto de datos $x_1, x_2, \dots, x_n$ en sus puntuaciones típicas $z_1, z_2, \dots, z_n$, se cumple siempre que:
+
+- La **media** de las puntuaciones típicas es **0**: $\bar{z} = 0$
+- La **desviación típica** de las puntuaciones típicas es **1**: $s_z = 1$
+- Las puntuaciones típicas son **adimensionales** (no tienen unidades), lo que permite comparar variables medidas en escalas distintas.
+- La transformación es **lineal**: conserva la forma de la distribución original (si los datos originales eran simétricos, los z-scores también lo serán).
+
+------------------------------------------------------------------------
+
+## Ejemplo Práctico 1: Cálculo manual
+
+Retomemos el **Grupo 2** de nuestro ejemplo anterior de edades, con $\bar{x} = 17$ y $s = 2.76$:
+
+| Edad ($x_i$) | $x_i - \bar{x}$ | $(x_i - \bar{x})/s$ | Puntuación típica ($z_i$) | Interpretación |
+|:---:|:---:|:---:|:---:|:---|
+| 14 | −3 | −3/2.76 | −1.09 | Por debajo de la media, dato típico |
+| 15 | −2 | −2/2.76 | −0.72 | Ligeramente por debajo |
+| 15 | −2 | −2/2.76 | −0.72 | Ligeramente por debajo |
+| 18 | +1 | +1/2.76 | +0.36 | Ligeramente por encima |
+| 19 | +2 | +2/2.76 | +0.72 | Por encima de la media |
+| 21 | +4 | +4/2.76 | +1.45 | El más alejado, aunque aún típico |
+
+**Conclusión:** El estudiante de 21 años es el que más se aleja de la media por encima ($z = 1.45$), mientras que el de 14 años se aleja más por debajo ($z = -1.09$). Ningún valor supera $|z| = 2$, así que no hay datos atípicos en este grupo.
+
+------------------------------------------------------------------------
+
+## Ejemplo Práctico 2: Comparando variables de distinta escala
+
+Supongamos que un estudiante obtiene:
+
+- Un **7.5** en un examen de Matemáticas, donde la media de la clase fue $\bar{x} = 6$ y $s = 1.2$
+- Un **82** en un examen de Inglés, donde la media de la clase fue $\bar{x} = 70$ y $s = 8$
+
+¿En qué examen le fue relativamente mejor? Comparar 7.5 con 82 directamente no tiene sentido porque están en escalas distintas. Usamos z-scores:
+
+$$z_{mates} = \frac{7.5 - 6}{1.2} = 1.25 \qquad z_{ingles} = \frac{82 - 70}{8} = 1.5$$
+
+**Conclusión:** Aunque la nota numérica de Inglés (82) parece más "alta" que la de Matemáticas (7.5), en términos relativos al grupo **le fue mejor en Inglés** ($z = 1.5$), porque se alejó más de la media de su clase que en Matemáticas ($z = 1.25$).
+
+------------------------------------------------------------------------
+
+## 💻 Cálculo en R
+
+### Cálculo manual paso a paso
+
+```{r}
+grupo2 <- c(14, 15, 15, 18, 19, 21)
+
+media <- mean(grupo2)
+desv  <- sd(grupo2)
+
+z_scores <- (grupo2 - media) / desv
+
+tabla_z <- data.frame(
+  Edad        = grupo2,
+  Diferencia  = round(grupo2 - media, 2),
+  Z_score     = round(z_scores, 2)
+)
+
+tabla_z
+```
+
+### Verificación de las propiedades (media 0, desviación 1)
+
+```{r}
+cat("Media de las puntuaciones típicas:", round(mean(z_scores), 10), "\n")
+cat("Desviación típica de las puntuaciones típicas:", round(sd(z_scores), 4), "\n")
+```
+
+### Usando la función base `scale()` de R
+
+R incluye una función que calcula los z-scores automáticamente:
+
+```{r}
+z_scores_base <- as.numeric(scale(grupo2))
+round(z_scores_base, 2)
+```
+
+### Ejemplo práctico 2 en R (comparación Matemáticas vs. Inglés)
+
+```{r}
+nota_mates  <- 7.5; media_mates  <- 6;  sd_mates  <- 1.2
+nota_ingles <- 82;  media_ingles <- 70; sd_ingles <- 8
+
+z_mates  <- (nota_mates  - media_mates)  / sd_mates
+z_ingles <- (nota_ingles - media_ingles) / sd_ingles
+
+data.frame(
+  Asignatura = c("Matemáticas", "Inglés"),
+  Nota       = c(nota_mates, nota_ingles),
+  Media      = c(media_mates, media_ingles),
+  Desviacion = c(sd_mates, sd_ingles),
+  Z_score    = round(c(z_mates, z_ingles), 2)
+)
+```
+
+------------------------------------------------------------------------
+
+## 📊 Gráfica 1: Barras de puntuaciones típicas por individuo
+
+```{r, fig.width=8, fig.height=4.5}
+library(ggplot2)
+library(dplyr)
+
+df <- data.frame(
+  id   = factor(1:length(grupo2)),
+  Edad = grupo2,
+  Z    = round(z_scores, 2)
+)
+
+ggplot(df, aes(x = id, y = Z, fill = Z > 0)) +
+  geom_col(width = 0.6) +
+  geom_hline(yintercept = 0, color = "black") +
+  geom_hline(yintercept = c(-1, 1), linetype = "dotted", color = "gray40") +
+  geom_text(aes(label = Edad), vjust = ifelse(df$Z >= 0, -0.5, 1.5)) +
+  scale_fill_manual(values = c("TRUE" = "#2E86AB", "FALSE" = "#E63946"),
+                     guide = "none") +
+  labs(
+    title = "Puntuaciones típicas (z) por estudiante",
+    subtitle = "Etiqueta = edad original | Barra = z-score | Líneas punteadas = ±1 desviación típica",
+    x = "Estudiante",
+    y = "Puntuación típica (z)"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+------------------------------------------------------------------------
+
+## 📊 Gráfica 2: Curva normal estándar con puntuaciones típicas marcadas
+
+Esta gráfica sitúa cada z-score sobre la **curva normal estándar** ($\mu = 0$, $\sigma = 1$) y sombrea las zonas de la regla 68-95-99.7:
+
+```{r, fig.width=9, fig.height=5}
+library(ggplot2)
+
+x_vals <- seq(-4, 4, length.out = 400)
+curva  <- data.frame(x = x_vals, y = dnorm(x_vals))
+
+ggplot(curva, aes(x, y)) +
+  geom_line(color = "black", linewidth = 1) +
+  geom_ribbon(data = subset(curva, x >= -1 & x <= 1),
+              aes(ymin = 0, ymax = y), fill = "#2E86AB", alpha = 0.45) +
+  geom_ribbon(data = subset(curva, x >= -2 & x <= -1),
+              aes(ymin = 0, ymax = y), fill = "#A8DADC", alpha = 0.5) +
+  geom_ribbon(data = subset(curva, x >= 1 & x <= 2),
+              aes(ymin = 0, ymax = y), fill = "#A8DADC", alpha = 0.5) +
+  geom_ribbon(data = subset(curva, x >= -3 & x <= -2),
+              aes(ymin = 0, ymax = y), fill = "#F1FAEE", alpha = 0.6) +
+  geom_ribbon(data = subset(curva, x >= 2 & x <= 3),
+              aes(ymin = 0, ymax = y), fill = "#F1FAEE", alpha = 0.6) +
+  geom_point(data = df, aes(x = Z, y = 0), color = "#E63946", size = 3) +
+  geom_vline(xintercept = z_scores, linetype = "dashed",
+             color = "#E63946", alpha = 0.4) +
+  annotate("text", x = 0, y = 0.42, label = "68%", size = 4) +
+  annotate("text", x = -1.5, y = 0.1, label = "13.5%", size = 3.3) +
+  annotate("text", x = 1.5, y = 0.1, label = "13.5%", size = 3.3) +
+  scale_x_continuous(breaks = -3:3) +
+  labs(
+    title = "Distribución normal estándar con puntuaciones típicas",
+    subtitle = "Puntos rojos = z-scores del Grupo 2 | Zonas sombreadas = regla 68-95-99.7",
+    x = "z (puntuación típica)",
+    y = "Densidad"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+------------------------------------------------------------------------
+
+## 📊 Gráfica 3: Datos originales vs. puntuaciones típicas (doble eje comparativo)
+
+Esta gráfica ayuda a visualizar cómo la transformación mantiene el orden pero cambia la escala:
+
+```{r, fig.width=9, fig.height=5}
+library(ggplot2)
+library(tidyr)
+
+df_long <- df %>%
+  mutate(Edad_reescalada = (Edad - min(Edad)) / (max(Edad) - min(Edad))) %>%
+  select(id, Edad, Z) %>%
+  pivot_longer(cols = c(Edad, Z), names_to = "Tipo", values_to = "Valor")
+
+ggplot(df_long, aes(x = id, y = Valor, group = Tipo, color = Tipo)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2.5) +
+  facet_wrap(~Tipo, scales = "free_y",
+             labeller = as_labeller(c(Edad = "Puntuación bruta (edad)",
+                                       Z = "Puntuación típica (z)"))) +
+  scale_color_manual(values = c("Edad" = "#457B9D", "Z" = "#E63946"), guide = "none") +
+  labs(
+    title = "Comparación: puntuación bruta vs. puntuación típica",
+    subtitle = "El orden de los estudiantes se mantiene, pero la escala cambia",
+    x = "Estudiante",
+    y = NULL
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+------------------------------------------------------------------------
+
+## 📊 Gráfica 4: Comparando dos grupos distintos sobre la misma curva normal
+
+Aquí comparamos el **Grupo 2** con un **Grupo nuevo** de notas de examen, para mostrar cómo la puntuación típica permite compararlos aunque tengan escalas y unidades distintas:
+
+```{r, fig.width=9, fig.height=5}
+grupo_notas <- c(4.5, 5, 6, 6, 7, 9.5)   # notas sobre 10
+
+z_grupo2  <- as.numeric(scale(grupo2))
+z_notas   <- as.numeric(scale(grupo_notas))
+
+df_comparacion <- data.frame(
+  Z = c(z_grupo2, z_notas),
+  Grupo = rep(c("Edades (Grupo 2)", "Notas de examen"), each = 6)
+)
+
+ggplot(curva, aes(x, y)) +
+  geom_line(color = "gray30", linewidth = 1) +
+  geom_point(data = df_comparacion, aes(x = Z, y = 0, color = Grupo),
+             size = 3, position = position_jitter(height = 0.01, width = 0)) +
+  scale_color_manual(values = c("Edades (Grupo 2)" = "#2E86AB",
+                                 "Notas de examen"  = "#E63946")) +
+  labs(
+    title = "Dos variables distintas, misma escala comparativa",
+    subtitle = "Gracias a la puntuación típica podemos comparar edades y notas en el mismo eje",
+    x = "z (puntuación típica)",
+    y = "Densidad",
+    color = "Variable"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "bottom")
+```
+
+------------------------------------------------------------------------
+
+## 🧠 Puntuación bruta vs. Puntuación típica
+
+| Puntuación bruta ($x$) | Puntuación típica ($z$) |
+|:---|:---|
+| Depende de la unidad de medida (años, cm, €, puntos...) | Adimensional: siempre expresada en "desviaciones típicas" |
+| Difícil de comparar entre variables distintas | Permite comparar variables de naturaleza diferente |
+| Su media y desviación cambian según el conjunto de datos | Siempre tiene media $= 0$ y desviación típica $= 1$ |
+| No indica si un valor es "raro" o "normal" por sí solo | Permite identificar directamente valores atípicos ($|z|>2$ o $|z|>3$) |
+
+------------------------------------------------------------------------
+
+## 🌍 Aplicaciones reales de la puntuación típica
+
+- **Pruebas estandarizadas:** El CI (coeficiente intelectual), las pruebas PISA o el SAT se construyen a partir de puntuaciones típicas transformadas a otra escala (por ejemplo, CI con media 100 y desviación 15).
+- **Control de calidad industrial:** Se usa para detectar piezas defectuosas que se alejan demasiado ($|z|>3$) de las medidas estándar.
+- **Finanzas:** Permite comparar la rentabilidad de activos con volatilidades (riesgos) distintas.
+- **Detección de anomalías (outliers):** En ciencia de datos, es habitual marcar como atípico cualquier dato con $|z| > 3$.
+- **Medicina:** Los percentiles de crecimiento infantil (peso, altura) se basan en puntuaciones típicas respecto a la población de referencia.
+
+------------------------------------------------------------------------
+
+## ✅ Resumen
+
+> La **puntuación típica** convierte cualquier dato en un valor comparable dentro de una escala universal (media 0, desviación típica 1). Es la herramienta fundamental para comparar datos de distinta naturaleza, detectar valores atípicos y comprender la posición relativa de un dato dentro de su distribución.
